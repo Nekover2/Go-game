@@ -1,0 +1,26 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(19, 30px);
+  grid-template-rows: repeat(19, 30px);
+  background-color: #d6a35b;
+  border: 4px solid #8b5a2b;
+  width: fit-content;
+  margin: 30px auto;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.cell.black {
+  background-color: black;
+}
+
+.cell.white {
+  background-color: white;
+}
