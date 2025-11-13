@@ -1,0 +1,101 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+# Build results
+*.dll
+*.exe
+*.nupkg
+*.msi
+*.app
+
+# NuGet
+.packages
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider
+.idea/
+
+# Dotnet publish
+publish/
+*.Publish.xml
+
+# ASP.NET Core
+# Ignore default secrets file created by dotnet user-secrets (stored outside repo by default)
+*.db
+*.bak
+
+# Local appsettings overrides (may contain secrets)
+appsettings.*.Local.json
+appsettings.*.Secrets.json
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Rider caches
+.idea/
+
+# Coverage and test results
+TestResults/
+coverage*
+*.coverage
+*.coveragexml
+
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
+
+# IIS Express
+/.vs/*/applicationhost.config
+/.vs/*/config/*
+
+# User-secrets folder (global, not in repo) - keep pattern for safety
+%APPDATA%/Microsoft/UserSecrets
+~/.microsoft/usersecrets
+
+# Resharper
+_ReSharper*/
+*.ReSharper*/
+
+# Temporary files
+*~
+*.tmp
+
+# DDD / Monorepo specifics
+# If you have multiple projects (Domain, Application, Infrastructure), ignore their build artifacts
+Domain/**/bin/
+Domain/**/obj/
+Application/**/bin/
+Application/**/obj/
+Infrastructure/**/bin/
+Infrastructure/**/obj/
+API/**/bin/
+API/**/obj/
+
+# Generated files (protobuf, swagger, migrations)
+*.swagger.json
+**/Migrations/**/ModelSnapshot.cs
+
+# Optional: uncomment to ignore appsettings.Development if it contains secrets
+# appsettings.Development.json
+
