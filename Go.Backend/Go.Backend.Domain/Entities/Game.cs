@@ -17,6 +17,7 @@ public class Game
     public StoneColor? Winner { get; private set; }
     public int BlackCaptures { get; private set; }
     public int WhiteCaptures { get; private set; }
+    public int ConsecutivePasses { get; private set; }
 
     private Game(Guid id, Board board, StoneColor nextPlayer, int moveNumber, bool isFinished, StoneColor? winner,
         HashSet<string> previousSignatures, int blackCaptures, int whiteCaptures)
@@ -30,6 +31,7 @@ public class Game
         _previousSignatures = previousSignatures;
         BlackCaptures = blackCaptures;
         WhiteCaptures = whiteCaptures;
+        ConsecutivePasses = 0;
     }
 
     public static Game CreateNew()
@@ -60,6 +62,7 @@ public class Game
         Board = result.BoardAfterMove ?? Board;
         MoveNumber++;
         NextPlayer = color.Opponent();
+        ConsecutivePasses = 0;
 
         if (result.Captured is { Count: > 0 })
         {
@@ -74,7 +77,38 @@ public class Game
         }
 
         _previousSignatures.Add(Board.BuildSignature(NextPlayer));
+
+        if (!Board.GetEmptyPositions().Any())
+        {
+            FinishGame(null);
+        }
+
         return result;
+    }
+
+    public MoveResult Pass(StoneColor color)
+    {
+        if (IsFinished)
+        {
+            return MoveResult.Failed("Game is already finished.");
+        }
+
+        if (color != NextPlayer)
+        {
+            return MoveResult.Failed($"It is {NextPlayer} to move.");
+        }
+
+        MoveNumber++;
+        NextPlayer = color.Opponent();
+        ConsecutivePasses++;
+
+        if (ConsecutivePasses >= 2)
+        {
+            FinishGame(null);
+        }
+
+        _previousSignatures.Add(Board.BuildSignature(NextPlayer));
+        return MoveResult.PassOk(Board, NextPlayer);
     }
 
     public bool HasSeenSignature(string signature) => _previousSignatures.Contains(signature);

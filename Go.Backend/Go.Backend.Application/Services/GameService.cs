@@ -31,7 +31,7 @@ public class GameService : IGameService
     public Task<Game?> GetGameAsync(Guid id, CancellationToken cancellationToken) =>
         _repository.GetAsync(id, cancellationToken);
 
-    public async Task<MoveResult> PlayMoveAsync(Guid gameId, Position position, StoneColor color, CancellationToken cancellationToken)
+    public async Task<MoveResult> PlayMoveAsync(Guid gameId, Position position, StoneColor color, bool isPass, CancellationToken cancellationToken)
     {
         var game = await _repository.GetAsync(gameId, cancellationToken);
         if (game is null)
@@ -39,7 +39,9 @@ public class GameService : IGameService
             return MoveResult.Failed("Game not found.");
         }
 
-        var result = game.PlayMove(position, color, _rulesService);
+        var result = isPass
+            ? game.Pass(color)
+            : game.PlayMove(position, color, _rulesService);
         if (result.Success)
         {
             await _repository.UpdateAsync(game, cancellationToken);

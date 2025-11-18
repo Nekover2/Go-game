@@ -32,7 +32,7 @@ Board coordinates are 0-based `(x, y)` with `x` as row and `y` as column on a 19
 - **POST** `/api/games/{id}/moves`
 - **Request body**
   ```json
-  { "x": 3, "y": 3, "color": "black" }
+  { "x": 3, "y": 3, "color": "black", "pass": false }
   ```
 - **Responses**
   - **200**
@@ -43,6 +43,7 @@ Board coordinates are 0-based `(x, y)` with `x` as row and `y` as column on a 19
       "state": { /* game state object as above */ }
     }
     ```
+    - Note: when `pass: true`, `"move"` will be `null` and the server advances the turn. Two consecutive passes end the game.
   - **400** with error string (invalid color, occupied point, suicide, ko, not your turn, or game finished).
   - **404** if the game does not exist.
 
@@ -61,6 +62,7 @@ Board coordinates are 0-based `(x, y)` with `x` as row and `y` as column on a 19
       "state": { /* game state object as above */ }
     }
     ```
+    - `"move"` may be `null` if the bot passes; two consecutive passes end the game.
   - **400** if the suggested move is illegal or game is finished.
   - **404** if the game does not exist.
 
@@ -74,6 +76,7 @@ Fields in responses:
 - `winner` (`"Black"`, `"White"`, or `null`)
 - `blackCaptures` / `whiteCaptures` (int)
 - `board`: array of 19 strings, each length 19; characters: `B`, `W`, or `.` for empty.
+    - Board state is maintained server-side; clients should rely on these responses.
 
 ## Bot model configuration
 - Configure path in `Go.Backend.API/appsettings.json` under:

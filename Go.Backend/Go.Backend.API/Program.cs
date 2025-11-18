@@ -45,8 +45,9 @@ app.MapPost("/api/games/{id:guid}/moves",
             return Results.BadRequest("Color must be 'black' or 'white'.");
         }
 
+        var isPass = request.Pass ?? false;
         var position = new Go.Backend.Domain.ValueObjects.Position(request.X, request.Y);
-        var result = await gameService.PlayMoveAsync(id, position, color, ct);
+        var result = await gameService.PlayMoveAsync(id, position, color, isPass, ct);
 
         if (!result.Success)
         {
@@ -55,7 +56,7 @@ app.MapPost("/api/games/{id:guid}/moves",
 
         var game = await gameService.GetGameAsync(id, ct);
         return Results.Ok(new MoveResponse(
-            ToDto(position),
+            result.IsPass ? null : ToDto(position),
             result.Captured.Select(ToDto).ToArray(),
             game is null ? null : ToStateDto(game)
         ));
@@ -82,7 +83,7 @@ app.MapPost("/api/games/{id:guid}/bot-move",
         }
 
         return Results.Ok(new MoveResponse(
-            ToDto(botMove ?? default),
+            moveResult.IsPass ? null : ToDto(botMove ?? default),
             moveResult.Captured.Select(ToDto).ToArray(),
             ToStateDto(game)
         ));
@@ -143,8 +144,8 @@ public record PositionDto(int X, int Y);
 public record GameStateDto(Guid GameId, int Size, string NextPlayer, int MoveNumber, bool IsFinished,
     string? Winner, int BlackCaptures, int WhiteCaptures, IReadOnlyList<string> Board);
 
-public record MoveRequest(int X, int Y, string Color);
+public record MoveRequest(int X, int Y, string Color, bool? Pass);
 
 public record BotMoveRequest(string? Color);
 
-public record MoveResponse(PositionDto Move, IReadOnlyCollection<PositionDto> Captured, GameStateDto? State);
+public record MoveResponse(PositionDto? Move, IReadOnlyCollection<PositionDto> Captured, GameStateDto? State);

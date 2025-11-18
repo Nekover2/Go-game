@@ -9,6 +9,6 @@ public interface IGameService
 {
     Task<Game> CreateGameAsync(CancellationToken cancellationToken);
     Task<Game?> GetGameAsync(Guid id, CancellationToken cancellationToken);
-    Task<MoveResult> PlayMoveAsync(Guid gameId, Position position, StoneColor color, CancellationToken cancellationToken);
+    Task<MoveResult> PlayMoveAsync(Guid gameId, Position position, StoneColor color, bool isPass, CancellationToken cancellationToken);
     Task<(MoveResult move, Position? botMove)> PlayBotMoveAsync(Guid gameId, StoneColor color, CancellationToken cancellationToken);
 }
