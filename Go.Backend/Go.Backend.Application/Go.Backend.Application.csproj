@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\\Go.Backend.Domain\\Go.Backend.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

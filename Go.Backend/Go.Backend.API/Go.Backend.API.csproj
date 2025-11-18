@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\\Go.Backend.Application\\Go.Backend.Application.csproj" />
+    <ProjectReference Include="..\\Go.Backend.Infrastructure\\Go.Backend.Infrastructure.csproj" />
+    <ProjectReference Include="..\\Go.Backend.Domain\\Go.Backend.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
