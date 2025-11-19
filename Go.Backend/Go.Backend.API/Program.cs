@@ -149,3 +149,5 @@ public record MoveRequest(int X, int Y, string Color, bool? Pass);
 public record BotMoveRequest(string? Color);
 
 public record MoveResponse(PositionDto? Move, IReadOnlyCollection<PositionDto> Captured, GameStateDto? State);
+
+public partial class Program { }

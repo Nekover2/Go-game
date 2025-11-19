@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.Domain", "Go.Bac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.Infrastructure", "Go.Backend.Infrastructure\Go.Backend.Infrastructure.csproj", "{68FF00A4-0822-4252-88C4-F7344592AEB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.API.Tests", "Go.Backend.API.Tests\Go.Backend.API.Tests.csproj", "{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x64.Build.0 = Release|Any CPU
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x86.Build.0 = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x64.Build.0 = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x86.Build.0 = Debug|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x64.ActiveCfg = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x64.Build.0 = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x86.ActiveCfg = Release|Any CPU
+		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
