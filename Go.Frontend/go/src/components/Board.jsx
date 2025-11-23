@@ -8,22 +8,47 @@ export default function Board() {
     const hoshi = [3, 9, 15];
 
     const [stones, setStones] = useState({});
-    const [currentPlayer, setCurrentPlayer] = useState("black");
     const [playerColor, setPlayerColor] = useState(null);
     const [difficulty, setDifficulty] = useState(null);
+    const [gameState, setGameState] = useState(null); // Server-authoritative state
+    const [gameId, setGameId] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [moveInFlight, setMoveInFlight] = useState(false);
+    const [error, setError] = useState(null);
 
-    const handleIntersectionClick = (row, col) => {
-        const key = `${row}-${col}`;
-        if (stones[key]) return;
+    // Helper: Convert server board array to stones map
+    const boardArrayToStones = (boardArray) => {
+        const stoneMap = {};
+        for (let r = 0; r < boardArray.length; r++) {
+            const line = boardArray[r];
+            for (let c = 0; c < line.length; c++) {
+                const ch = line[c];
+                if (ch === 'B') stoneMap[`${r}-${c}`] = 'black';
+                else if (ch === 'W') stoneMap[`${r}-${c}`] = 'white';
+            }
+        }
+        return stoneMap;
+    };
 
-        const newStones = { ...stones, [key]: currentPlayer };
-        setStones(newStones);
-        setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
+    // Helper: Normalize server player name to lowercase
+    const normalizePlayer = (serverPlayer) => {
+        return serverPlayer ? serverPlayer.toLowerCase() : null;
+    };
+
+    // Helper: Apply server state to UI
+    const applyGameState = (state) => {
+        setGameState(state);
+        setStones(boardArrayToStones(state.board));
     };
 
     const resetBoard = () => {
         setStones({});
-        setCurrentPlayer("black");
+        setGameState(null);
+        setGameId(null);
+        setGameStarted(false);
+        setError(null);
+        setPlayerColor(null);
     };
 
     const chooseColor = (color) => {
@@ -32,6 +57,90 @@ export default function Board() {
         } else {
             setPlayerColor(color);
         }
+    };
+
+    const handlePlayClick = async () => {
+        // Validate player color is selected
+        if (!playerColor) {
+            setError("Please choose a color before playing!");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch("/api/games", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || `Failed to create game: ${response.statusText}`);
+            }
+
+            const gameData = await response.json();
+            setGameId(gameData.gameId);
+            setGameStarted(true);
+            applyGameState(gameData);
+        } catch (err) {
+            setError(err.message || "Error creating game");
+            console.error("Error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Play a human move
+    const playMove = async (row, col) => {
+        if (!gameStarted || !gameState || moveInFlight) return;
+
+        // Check if position is occupied
+        const key = `${row}-${col}`;
+        if (stones[key]) {
+            setError("Position already occupied!");
+            return;
+        }
+
+        // Check if it's the player's turn
+        const nextPlayer = normalizePlayer(gameState.nextPlayer);
+        if (nextPlayer !== playerColor) {
+            setError(`It's ${gameState.nextPlayer}'s turn, not yours!`);
+            return;
+        }
+
+        setMoveInFlight(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`/api/games/${gameId}/moves`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ x: row, y: col, color: playerColor, pass: false })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || `Move failed: ${response.statusText}`);
+            }
+
+            const payload = await response.json();
+            applyGameState(payload.state);
+        } catch (err) {
+            setError(err.message || "Error making move");
+            console.error("Move error:", err);
+        } finally {
+            setMoveInFlight(false);
+        }
+    };
+
+    const handleIntersectionClick = (row, col) => {
+        // Board is disabled until game is started or if move is in flight
+        if (!gameStarted || moveInFlight) return;
+        playMove(row, col);
     };
 
     const getStoneAtPosition = (row, col) => {
@@ -193,11 +302,17 @@ export default function Board() {
                 <div style={mainLayoutStyle}>
                     {/* Left side: Board */}
                     <div style={boardWrapperStyle}>
-                        <div style={boardStyle}>
+                        <div style={gameStarted ? boardStyle : { ...boardStyle, opacity: 0.6, pointerEvents: "none" }}>
                             {renderIntersections()}
                             {renderGridLines()}
                             {renderHoshi()}
                             {renderStones()}
+
+                            {!gameStarted && (
+                                <div style={boardOverlayStyle}>
+                                    Click "Play" to start
+                                </div>
+                            )}
 
                             <div
                                 style={{
@@ -217,18 +332,29 @@ export default function Board() {
                             </div>
                         </div>
                         <p style={statusStyle}>
-                            Current Player:{" "}
-                            <span
-                                style={{
-                                    color: currentPlayer === "black" ? "#000" : "#fff",
-                                    backgroundColor: currentPlayer === "black" ? "#fff" : "#000",
-                                    padding: "2px 8px",
-                                    borderRadius: "4px",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                {currentPlayer.toUpperCase()}
-                            </span>
+                            {gameStarted && gameState ? (
+                                <>
+                                    <div>Next Player: <span style={{
+                                        color: normalizePlayer(gameState.nextPlayer) === "black" ? "#000" : "#fff",
+                                        backgroundColor: normalizePlayer(gameState.nextPlayer) === "black" ? "#fff" : "#000",
+                                        padding: "2px 8px",
+                                        borderRadius: "4px",
+                                        fontWeight: "bold",
+                                    }}>
+                                        {gameState.nextPlayer.toUpperCase()}
+                                    </span></div>
+                                    <div style={{ fontSize: "12px", marginTop: "8px", color: "#666" }}>
+                                        Moves: {gameState.moveNumber} | Black: {gameState.blackCaptures} | White: {gameState.whiteCaptures}
+                                    </div>
+                                    {gameState.isFinished && (
+                                        <div style={{ marginTop: "8px", color: "#d4a574", fontWeight: "bold" }}>
+                                            Game Over! Winner: {gameState.winner || "Draw"}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                "Click Play to start a game"
+                            )}
                         </p>
                     </div>
 
@@ -320,9 +446,32 @@ export default function Board() {
 
                         {/* Actions Section */}
                         <div style={panelSectionStyle}>
-                            <button onClick={resetBoard} style={primaryButtonStyle}>
-                                Play
+                            {error && (
+                                <div style={errorMessageStyle}>
+                                    {error}
+                                </div>
+                            )}
+                            <button 
+                                onClick={gameStarted ? resetBoard : handlePlayClick}
+                                style={{
+                                    ...primaryButtonStyle,
+                                    opacity: (loading || moveInFlight) ? 0.6 : 1,
+                                    cursor: (loading || moveInFlight) ? "not-allowed" : "pointer",
+                                }}
+                                disabled={loading || moveInFlight}
+                            >
+                                {loading ? "Starting..." : gameStarted ? "New Game" : "Play"}
                             </button>
+                            {gameStarted && gameState && (
+                                <div style={gameStatusStyle}>
+                                    <p style={{ margin: "0 0 8px 0" }}>
+                                        {gameState.isFinished ? "Game Finished ✓" : "Game Active ✓"}
+                                    </p>
+                                    <p style={{ margin: "0", fontSize: "12px", color: "#888" }}>
+                                        Game ID: {gameId?.substring(0, 8)}...
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -471,4 +620,39 @@ const primaryButtonStyle = {
     fontWeight: "bold",
     transition: "background-color 0.3s ease",
     boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+};
+
+const errorMessageStyle = {
+    padding: "12px",
+    backgroundColor: "#ffebee",
+    color: "#c62828",
+    borderRadius: "4px",
+    fontSize: "14px",
+    textAlign: "center",
+    border: "1px solid #ef5350",
+};
+
+const gameStatusStyle = {
+    padding: "12px",
+    backgroundColor: "#e8f5e9",
+    color: "#2e7d32",
+    borderRadius: "4px",
+    fontSize: "14px",
+    textAlign: "center",
+    border: "1px solid #81c784",
+};
+
+const boardOverlayStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    color: "white",
+    padding: "20px 30px",
+    borderRadius: "8px",
+    fontSize: "18px",
+    fontWeight: "bold",
+    zIndex: 10,
+    whiteSpace: "nowrap",
 };
