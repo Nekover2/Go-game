@@ -15,20 +15,30 @@ namespace Go.Backend.Application.Models
         public int MoveNumber { get; set; } = 0;
         public bool IsFinished { get; set; }
         public PlayerColor? Winner { get; set; }
-        
-        // Thống kê tù binh
         public int BlackCaptures { get; set; }
         public int WhiteCaptures { get; set; }
 
-        // Logic check 2 lần pass liên tiếp để kết thúc game
         private bool _lastMoveWasPass = false;
 
+        // --- GIỮ NGUYÊN Constructor chính ---
         public GameMatch(int size = 19)
         {
             Board = new Board(size);
         }
 
-        // Helper chuyển đổi Board[,] thành string[] cho API
+        // --- THÊM MỚI ĐOẠN NÀY ĐỂ SỬA LỖI ---
+        // Constructor rỗng dành riêng cho EF Core (Binding)
+        // Khi load từ DB, EF Core sẽ gọi hàm này trước, sau đó mới gán dữ liệu vào các Properties
+#pragma warning disable CS8618 // Tắt cảnh báo Non-nullable vì EF sẽ tự fill data
+        private GameMatch() 
+        {
+            // Khởi tạo tạm Board để tránh null reference nếu lỡ truy cập trước khi load xong
+            Board = new Board(19); 
+        }
+#pragma warning restore CS8618
+        // -------------------------------------
+
+        // ... (Các hàm GetBoardStringArray, ApplyPass, RegisterMoveSuccess giữ nguyên)
         public string[] GetBoardStringArray()
         {
             var result = new string[Board.Size];
@@ -55,7 +65,7 @@ namespace Go.Backend.Application.Models
             if (_lastMoveWasPass)
             {
                 IsFinished = true;
-                // TODO: Tính điểm endgame nếu cần
+                // Game over logic...
             }
             _lastMoveWasPass = true;
             NextPlayer = NextPlayer.Opponent();
