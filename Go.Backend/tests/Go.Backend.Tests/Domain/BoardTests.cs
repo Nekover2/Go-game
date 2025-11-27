@@ -108,35 +108,44 @@ namespace Go.Backend.Tests.Domain
             // ... (setup giản lược) - Để test nhanh, ta giả định logic HasLiberties đúng
             // Ta test logic: Nước đi hết khí nhưng capture > 0 thì valid.
         }
-
         [Fact]
         public void Ko_Rule_ShouldFail_ImmediateRecapture()
         {
-            // Arrange: Tạo thế Ko
-            // . B W .
-            // B W . W
-            // . B W .
             var board = new Board(19);
-            
-            // Setup hình cờ Ko cơ bản
-            board.PlayMove(2, 3, PlayerColor.Black);
-            board.PlayMove(3, 2, PlayerColor.Black);
-            board.PlayMove(4, 3, PlayerColor.Black);
-            
-            board.PlayMove(2, 4, PlayerColor.White);
-            board.PlayMove(3, 5, PlayerColor.White);
-            board.PlayMove(4, 4, PlayerColor.White);
-            
-            // Đen đánh vào giữa để ăn Trắng
-            board.PlayMove(3, 4, PlayerColor.White); // Trắng làm mồi
-            board.PlayMove(3, 3, PlayerColor.Black); // Đen ăn
+                    // Arrange: Tạo thế Ko chuẩn
+                    // Mục tiêu:
+                    // - Ô (3,3) là tử huyệt của Đen (bị 3 quân Trắng vây).
+                    // - Ô (3,4) là tử huyệt của Trắng (bị 3 quân Đen vây).
 
-            // Act: Trắng cố đánh lại vào vị trí cũ ngay lập tức (3,4)
+
+                    // 1. Quân Trắng bao vây ô (3,3) (trừ mặt tiếp xúc 3,4)
+                    board.PlayMove(2, 3, PlayerColor.White); // Trái
+                    board.PlayMove(4, 3, PlayerColor.White); // Phải
+                    board.PlayMove(3, 2, PlayerColor.White); // Trên
+
+                    // 2. Quân Đen bao vây ô (3,4) (trừ mặt tiếp xúc 3,3)
+                    board.PlayMove(2, 4, PlayerColor.Black); // Trái
+                    board.PlayMove(4, 4, PlayerColor.Black); // Phải
+                    board.PlayMove(3, 5, PlayerColor.Black); // Dưới
+
+                    // 3. Trắng đi vào "miệng cọp" (3,4) để làm mồi
+                    // Lúc này Trắng (3,4) chỉ còn đúng 1 khí tại (3,3)
+                    var whiteAtari = board.PlayMove(3, 4, PlayerColor.White); 
+                    Assert.True(whiteAtari.IsSuccess);
+            
+            // 4. Đen đánh vào (3,3) -> Bắt quân Trắng tại (3,4)
+            // Sau nước này, (3,4) trở thành ô trống, và Đen (3,3) chỉ còn 1 khí tại (3,4)
+            // Trạng thái bàn cờ quay về hình dạng trước bước 3 (nhưng đổi người đi)
+            var captureMove = board.PlayMove(3, 3, PlayerColor.Black);
+            Assert.True(captureMove.IsSuccess);
+            Assert.Single(captureMove.CapturedStones); // Đảm bảo bắt được quân
+
+            // Act: Trắng cố đánh lại vào vị trí vừa bị ăn (3,4) ngay lập tức
             var result = board.PlayMove(3, 4, PlayerColor.White);
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains("Ko", result.ErrorMessage);
+            Assert.Contains("Ko", result.ErrorMessage); // Lúc này lỗi sẽ là Ko
         }
     }
 }
