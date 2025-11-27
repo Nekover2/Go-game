@@ -1,72 +1,120 @@
-using Go.Backend.Application.Abstractions;
-using Go.Backend.Domain.Abstractions;
-using Go.Backend.Domain.Entities;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Go.Backend.Application.DTOs;
+using Go.Backend.Application.Interfaces;
+using Go.Backend.Application.Models;
 using Go.Backend.Domain.Enums;
-using Go.Backend.Domain.Models;
-using Go.Backend.Domain.Services;
-using Go.Backend.Domain.ValueObjects;
 
-namespace Go.Backend.Application.Services;
-
-public class GameService : IGameService
+namespace Go.Backend.Application.Services
 {
-    private readonly IGameRepository _repository;
-    private readonly GoRulesService _rulesService;
-    private readonly IGoBotEngine _botEngine;
-
-    public GameService(IGameRepository repository, GoRulesService rulesService, IGoBotEngine botEngine)
+    public class GameService
     {
-        _repository = repository;
-        _rulesService = rulesService;
-        _botEngine = botEngine;
-    }
+        private readonly IGameRepository _repository;
+        private readonly IGoAiService _aiService;
 
-    public async Task<Game> CreateGameAsync(CancellationToken cancellationToken)
-    {
-        var game = Game.CreateNew();
-        await _repository.AddAsync(game, cancellationToken);
-        return game;
-    }
-
-    public Task<Game?> GetGameAsync(Guid id, CancellationToken cancellationToken) =>
-        _repository.GetAsync(id, cancellationToken);
-
-    public async Task<MoveResult> PlayMoveAsync(Guid gameId, Position position, StoneColor color, bool isPass, CancellationToken cancellationToken)
-    {
-        var game = await _repository.GetAsync(gameId, cancellationToken);
-        if (game is null)
+        public GameService(IGameRepository repository, IGoAiService aiService)
         {
-            return MoveResult.Failed("Game not found.");
+            _repository = repository;
+            _aiService = aiService;
         }
 
-        var result = isPass
-            ? game.Pass(color)
-            : game.PlayMove(position, color, _rulesService);
-        if (result.Success)
+        public async Task<GameStateDto> CreateGameAsync()
         {
-            await _repository.UpdateAsync(game, cancellationToken);
+            var game = new GameMatch(19);
+            await _repository.CreateAsync(game);
+            return MapToDto(game);
         }
 
-        return result;
-    }
-
-    public async Task<(MoveResult move, Position? botMove)> PlayBotMoveAsync(Guid gameId, StoneColor color, CancellationToken cancellationToken)
-    {
-        var game = await _repository.GetAsync(gameId, cancellationToken);
-        if (game is null)
+        public async Task<GameStateDto?> GetGameAsync(Guid id)
         {
-            return (MoveResult.Failed("Game not found."), null);
+            var game = await _repository.GetByIdAsync(id);
+            return game == null ? null : MapToDto(game);
         }
 
-        var suggestion = await _botEngine.SuggestMoveAsync(game, color, cancellationToken);
-        var result = game.PlayMove(suggestion, color, _rulesService);
-
-        if (result.Success)
+        public async Task<MoveResponseDto> ProcessMoveAsync(Guid gameId, MakeMoveRequest request)
         {
-            await _repository.UpdateAsync(game, cancellationToken);
-            return (result, suggestion);
+            var game = await _repository.GetByIdAsync(gameId);
+            if (game == null) throw new KeyNotFoundException("Game not found");
+            if (game.IsFinished) throw new InvalidOperationException("Game is finished");
+
+            // Validate lượt đi
+            var requestColor = Enum.Parse<PlayerColor>(request.Color, true);
+            if (requestColor != game.NextPlayer)
+                throw new ArgumentException("Not your turn");
+
+            MoveCoordinateDto? playedMove = null;
+            var capturedCoords = new List<MoveCoordinateDto>();
+
+            if (request.Pass)
+            {
+                game.ApplyPass();
+            }
+            else
+            {
+                // Gọi Domain để xử lý logic bàn cờ
+                var result = game.Board.PlayMove(request.X, request.Y, requestColor);
+                
+                if (!result.IsSuccess)
+                    throw new ArgumentException(result.ErrorMessage);
+
+                game.RegisterMoveSuccess(result.CapturedStones.Count);
+                
+                playedMove = new MoveCoordinateDto { X = request.X, Y = request.Y };
+                capturedCoords = result.CapturedStones
+                    .Select(c => new MoveCoordinateDto { X = c.X, Y = c.Y })
+                    .ToList();
+            }
+
+            await _repository.SaveAsync(game);
+
+            return new MoveResponseDto
+            {
+                Move = playedMove,
+                Captured = capturedCoords,
+                State = MapToDto(game)
+            };
         }
 
-        return (result, suggestion);
+        public async Task<MoveResponseDto> ProcessBotMoveAsync(Guid gameId, string? requestedColor)
+        {
+            var game = await _repository.GetByIdAsync(gameId);
+            if (game == null) throw new KeyNotFoundException("Game not found");
+            if (game.IsFinished) throw new InvalidOperationException("Game finished");
+
+            var aiColor = requestedColor != null 
+                ? Enum.Parse<PlayerColor>(requestedColor, true) 
+                : game.NextPlayer;
+
+            // 1. Gọi AI Service (Interface)
+            var bestMove = await _aiService.GetBestMoveAsync(game.Board, aiColor);
+
+            // 2. Tái sử dụng logic đi quân
+            var moveRequest = new MakeMoveRequest
+            {
+                Color = aiColor.ToString(),
+                Pass = (bestMove == null),
+                X = bestMove?.X ?? 0,
+                Y = bestMove?.Y ?? 0
+            };
+
+            return await ProcessMoveAsync(gameId, moveRequest);
+        }
+
+        private GameStateDto MapToDto(GameMatch game)
+        {
+            return new GameStateDto
+            {
+                GameId = game.Id,
+                Size = game.Board.Size,
+                NextPlayer = game.NextPlayer.ToString(),
+                MoveNumber = game.MoveNumber,
+                IsFinished = game.IsFinished,
+                Winner = game.Winner?.ToString(),
+                BlackCaptures = game.BlackCaptures,
+                WhiteCaptures = game.WhiteCaptures,
+                Board = game.GetBoardStringArray()
+            };
+        }
     }
 }
