@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.Domain", "Go.Bac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.Infrastructure", "Go.Backend.Infrastructure\Go.Backend.Infrastructure.csproj", "{68FF00A4-0822-4252-88C4-F7344592AEB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.API.Tests", "Go.Backend.API.Tests\Go.Backend.API.Tests.csproj", "{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Go.Backend.Tests", "tests\Go.Backend.Tests\Go.Backend.Tests.csproj", "{450CFCC0-8693-4FDA-8011-088A821A7C41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,20 +73,23 @@ Global
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x64.Build.0 = Release|Any CPU
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{68FF00A4-0822-4252-88C4-F7344592AEB2}.Release|x86.Build.0 = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x64.Build.0 = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Debug|x86.Build.0 = Debug|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x64.ActiveCfg = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x64.Build.0 = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x86.ActiveCfg = Release|Any CPU
-		{5D042527-CE79-4DF0-BF5E-45DCC155C1F9}.Release|x86.Build.0 = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|x64.Build.0 = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Debug|x86.Build.0 = Debug|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|x64.ActiveCfg = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|x64.Build.0 = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|x86.ActiveCfg = Release|Any CPU
+		{450CFCC0-8693-4FDA-8011-088A821A7C41}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{450CFCC0-8693-4FDA-8011-088A821A7C41} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
