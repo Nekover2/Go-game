@@ -9,7 +9,7 @@ export default function Board() {
 
     const [stones, setStones] = useState({});
     const [playerColor, setPlayerColor] = useState(null);
-    const [difficulty, setDifficulty] = useState(null);
+    const [colorChoice, setColorChoice] = useState(null); // Track the choice (black/white/random)
     const [gameState, setGameState] = useState(null); // Server-authoritative state
     const [gameId, setGameId] = useState(null);
     const [gameStarted, setGameStarted] = useState(false);
@@ -52,18 +52,25 @@ export default function Board() {
     };
 
     const chooseColor = (color) => {
-        if (color === "random") {
-            setPlayerColor(Math.random() > 0.5 ? "black" : "white");
-        } else {
+        setColorChoice(color);
+        // If not random, set player color immediately
+        if (color !== "random") {
             setPlayerColor(color);
         }
     };
 
     const handlePlayClick = async () => {
         // Validate player color is selected
-        if (!playerColor) {
+        if (!colorChoice) {
             setError("Please choose a color before playing!");
             return;
+        }
+
+        // Resolve random choice now
+        let finalColor = colorChoice;
+        if (colorChoice === "random") {
+            finalColor = Math.random() > 0.5 ? "black" : "white";
+            setPlayerColor(finalColor);
         }
 
         setLoading(true);
@@ -368,8 +375,8 @@ export default function Board() {
                                     onClick={() => chooseColor("black")}
                                     style={{
                                         ...optionButtonStyle,
-                                        backgroundColor: playerColor === "black" ? "#d4a574" : "transparent",
-                                        borderColor: playerColor === "black" ? "#8b5a2b" : "#ccc",
+                                        backgroundColor: colorChoice === "black" ? "#d4a574" : "transparent",
+                                        borderColor: colorChoice === "black" ? "#8b5a2b" : "#ccc",
                                     }}
                                 >
                                     ⚫ Black
@@ -378,8 +385,8 @@ export default function Board() {
                                     onClick={() => chooseColor("white")}
                                     style={{
                                         ...optionButtonStyle,
-                                        backgroundColor: playerColor === "white" ? "#d4a574" : "transparent",
-                                        borderColor: playerColor === "white" ? "#8b5a2b" : "#ccc",
+                                        backgroundColor: colorChoice === "white" ? "#d4a574" : "transparent",
+                                        borderColor: colorChoice === "white" ? "#8b5a2b" : "#ccc",
                                     }}
                                 >
                                     ⚪ White
@@ -388,8 +395,8 @@ export default function Board() {
                                     onClick={() => chooseColor("random")}
                                     style={{
                                         ...optionButtonStyle,
-                                        backgroundColor: playerColor === "random" ? "#d4a574" : "transparent",
-                                        borderColor: playerColor === "random" ? "#8b5a2b" : "#ccc",
+                                        backgroundColor: colorChoice === "random" ? "#d4a574" : "transparent",
+                                        borderColor: colorChoice === "random" ? "#8b5a2b" : "#ccc",
                                     }}
                                 >
                                     🎲 Random
@@ -398,48 +405,6 @@ export default function Board() {
                             {playerColor && (
                                 <p style={chosenColorStyle}>
                                     Your Color: <strong>{playerColor.toUpperCase()}</strong>
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Difficulty Section */}
-                        <div style={panelSectionStyle}>
-                            <h3 style={panelTitleStyle}>Difficulty</h3>
-                            <div style={optionGroupStyle}>
-                                <button
-                                    onClick={() => setDifficulty("easy")}
-                                    style={{
-                                        ...optionButtonStyle,
-                                        backgroundColor: difficulty === "easy" ? "#d4a574" : "transparent",
-                                        borderColor: difficulty === "easy" ? "#8b5a2b" : "#ccc",
-                                    }}
-                                >
-                                    🟢 Easy
-                                </button>
-                                <button
-                                    onClick={() => setDifficulty("normal")}
-                                    style={{
-                                        ...optionButtonStyle,
-                                        backgroundColor: difficulty === "normal" ? "#d4a574" : "transparent",
-                                        borderColor: difficulty === "normal" ? "#8b5a2b" : "#ccc",
-                                    }}
-                                >
-                                    🟡 Normal
-                                </button>
-                                <button
-                                    onClick={() => setDifficulty("hard")}
-                                    style={{
-                                        ...optionButtonStyle,
-                                        backgroundColor: difficulty === "hard" ? "#d4a574" : "transparent",
-                                        borderColor: difficulty === "hard" ? "#8b5a2b" : "#ccc",
-                                    }}
-                                >
-                                    🔴 Hard
-                                </button>
-                            </div>
-                            {difficulty && (
-                                <p style={chosenColorStyle}>
-                                    Selected: <strong>{difficulty.toUpperCase()}</strong>
                                 </p>
                             )}
                         </div>
