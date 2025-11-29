@@ -9,7 +9,7 @@ namespace Go.Backend.Domain.Entities
 {
     public class Board
     {
-        public int Size { get; } = 19;
+        public int Size { get; private set; } = 19;
         public PlayerColor[,] Stones { get; private set; }
         
         // Hash của trạng thái bàn cờ trước đó (để kiểm tra luật Ko đơn giản)
@@ -17,6 +17,11 @@ namespace Go.Backend.Domain.Entities
         
         // Hash hiện tại (được tính toán động)
         public string CurrentStateHash => GenerateBoardHash();
+        private Board() 
+        {
+            // Khởi tạo mặc định để tránh null, dù JSON sẽ ghi đè ngay sau đó
+            Stones = new PlayerColor[19, 19]; 
+        }
 
         public Board(int size = 19)
         {

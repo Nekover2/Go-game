@@ -22,6 +22,15 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Go.Backend.Domain\Go.Backend.Domain.csproj" />
     <ProjectReference Include="..\..\Go.Backend.Application\Go.Backend.Application.csproj" />
+    <ProjectReference Include="..\..\Go.Backend.Infrastructure\Go.Backend.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="GoModel.onnx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="GoModel.onnx.data">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
