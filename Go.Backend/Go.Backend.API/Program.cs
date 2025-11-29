@@ -7,11 +7,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Add Services to the container
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,9 +21,11 @@ builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<GameService>(); // Service chính
 
 // 4. Đăng ký AI Service (Singleton vì load model ONNX rất nặng, chỉ load 1 lần)
-// TODO: Thay MockGoAiService bằng OnnxGoAiService khi model ONNX được fix
 var modelPath = builder.Configuration["BotModel:ModelPath"];
-builder.Services.AddSingleton<IGoAiService>(sp => new MockGoAiService());
+if (string.IsNullOrEmpty(modelPath)) 
+    throw new Exception("BotModel:ModelPath is missing in appsettings.json");
+
+builder.Services.AddSingleton<IGoAiService>(sp => new OnnxGoAiService(modelPath));
 
 // 5. Cấu hình CORS (Để ReactJS gọi được API)
 builder.Services.AddCors(options =>

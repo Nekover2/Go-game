@@ -86,51 +86,19 @@ namespace Go.Backend.Application.Services
                 ? Enum.Parse<PlayerColor>(requestedColor, true) 
                 : game.NextPlayer;
 
-            // Keep trying until we find a valid move or decide to pass
-            int retryCount = 0;
-            const int maxRetries = 5;
+            // 1. Gọi AI Service (Interface)
+            var bestMove = await _aiService.GetBestMoveAsync(game.Board, aiColor);
 
-            while (retryCount < maxRetries)
-            {
-                // 1. Gọi AI Service (Interface)
-                var bestMove = await _aiService.GetBestMoveAsync(game.Board, aiColor);
-
-                // 2. Tái sử dụng logic đi quân
-                var moveRequest = new MakeMoveRequest
-                {
-                    Color = aiColor.ToString(),
-                    Pass = (bestMove == null),
-                    X = bestMove?.X ?? 0,
-                    Y = bestMove?.Y ?? 0
-                };
-
-                try
-                {
-                    return await ProcessMoveAsync(gameId, moveRequest);
-                }
-                catch (ArgumentException) when (!moveRequest.Pass)
-                {
-                    // If the AI move is invalid, retry up to maxRetries times
-                    retryCount++;
-                    if (retryCount >= maxRetries)
-                    {
-                        // After max retries, pass
-                        moveRequest.Pass = true;
-                        return await ProcessMoveAsync(gameId, moveRequest);
-                    }
-                    // Otherwise, loop will call GetBestMoveAsync again
-                }
-            }
-
-            // Fallback: if all retries exhausted, pass
-            var passRequest = new MakeMoveRequest
+            // 2. Tái sử dụng logic đi quân
+            var moveRequest = new MakeMoveRequest
             {
                 Color = aiColor.ToString(),
-                Pass = true,
-                X = 0,
-                Y = 0
+                Pass = (bestMove == null),
+                X = bestMove?.X ?? 0,
+                Y = bestMove?.Y ?? 0
             };
-            return await ProcessMoveAsync(gameId, passRequest);
+
+            return await ProcessMoveAsync(gameId, moveRequest);
         }
 
         private GameStateDto MapToDto(GameMatch game)
