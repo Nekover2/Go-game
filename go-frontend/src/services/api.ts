@@ -18,9 +18,9 @@ export const gameService = {
     },
 
     // 3. Người chơi đi quân
-    playMove: async (id: string, x: number, y: number, color: string): Promise<MoveResponse> => {
+    playMove: async (id: string, x: number, y: number, color: string, pass: boolean = false): Promise<MoveResponse> => {
         const response = await axios.post<MoveResponse>(`${API_URL}/${id}/moves`, {
-            x, y, color, pass: false
+            x, y, color, pass
         });
         return response.data;
     },

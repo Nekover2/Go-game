@@ -74,10 +74,42 @@ function App() {
     try {
       const botResult = await gameService.getBotMove(gameId, botColor);
       setGame(botResult.state);
-    } catch (e) {
-      setStatusMessage("Bot gặp lỗi hoặc chịu thua!");
+    } catch (e: any) {
+      // If bot move fails (e.g., no valid moves), try passing instead
+      console.error("Bot move error:", e);
+      try {
+        const passResult = await gameService.playMove(gameId, 0, 0, botColor, true);
+        setGame(passResult.state);
+      } catch (passError) {
+        setStatusMessage("Bot encountered an error!");
+      }
     } finally {
       setIsBotThinking(false);
+    }
+  };
+
+  const handleSkipTurn = async () => {
+    if (!game || isBotThinking || game.isFinished) return;
+
+    if (game.nextPlayer !== userColor) {
+      setStatusMessage(`It's ${game.nextPlayer}'s turn, not yours!`);
+      return;
+    }
+
+    try {
+      setStatusMessage("");
+      // Pass turn (x, y don't matter for pass)
+      const result = await gameService.playMove(game.gameId, 0, 0, userColor, true);
+      setGame(result.state);
+
+      // Bot moves after player passes
+      if (!result.state.isFinished) {
+        const botColor = userColor === "Black" ? "White" : "Black";
+        // Delay 1 second before bot moves
+        setTimeout(() => triggerBotMove(game.gameId, botColor), 1000);
+      }
+    } catch (error: any) {
+      setStatusMessage(error.response?.data?.message || "Error passing turn!");
     }
   };
 
@@ -98,13 +130,13 @@ function App() {
     try {
       setStatusMessage("");
       // 1. Người đi
-      const result = await gameService.playMove(game.gameId, x, y, userColor);
+      const result = await gameService.playMove(game.gameId, x, y, userColor, false);
       setGame(result.state);
 
-      // 2. Bot đi
+      // 2. Bot đi (with 1 second delay)
       if (!result.state.isFinished) {
         const botColor = userColor === "Black" ? "White" : "Black";
-        triggerBotMove(game.gameId, botColor);
+        setTimeout(() => triggerBotMove(game.gameId, botColor), 1000);
       }
     } catch (error: any) {
       setStatusMessage(error.response?.data?.message || "Nước đi không hợp lệ!");
@@ -214,12 +246,6 @@ function App() {
             </div>
           )}
 
-          {/* Hiển thị màu quân của User */}
-          {game && (
-            <div className="info-box gray">
-              Your Color: {userColor.toUpperCase()}
-            </div>
-          )}
           {isBotThinking && (
             <div className="info-box" style={{
               backgroundColor: '#fff8e1',
@@ -249,6 +275,27 @@ function App() {
             <div className="info-box error">
               {statusMessage}
             </div>
+          )}
+
+          {/* Skip Turn Button */}
+          {game && playAsSelection !== "BotVsBot" && game.nextPlayer === userColor && !isBotThinking && !game.isFinished && (
+            <button
+              style={{
+                width: '100%',
+                padding: '8px',
+                marginBottom: '10px',
+                backgroundColor: '#ff9800',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold'
+              }}
+              onClick={handleSkipTurn}
+            >
+              ⏭ Skip Turn
+            </button>
           )}
 
           <button
