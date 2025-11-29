@@ -9,11 +9,11 @@ namespace Go.Backend.Domain.Entities
 {
     public class Board
     {
-        public int Size { get; private set; } = 19;
-        public PlayerColor[,] Stones { get; private set; }
+        public int Size { get; set; } = 19;
+        public PlayerColor[,] Stones { get; set; }
         
         // Hash của trạng thái bàn cờ trước đó (để kiểm tra luật Ko đơn giản)
-        public string PreviousStateHash { get; private set; } = string.Empty;
+        public string PreviousStateHash { get; set; } = string.Empty;
         
         // Hash hiện tại (được tính toán động)
         public string CurrentStateHash => GenerateBoardHash();
@@ -33,10 +33,12 @@ namespace Go.Backend.Domain.Entities
         public Board(Board other)
         {
             Size = other.Size;
-            Stones = (PlayerColor[,])other.Stones.Clone();
+            // Quan trọng: Phải dùng .Clone() của mảng để tạo vùng nhớ mới
+            Stones = (PlayerColor[,])other.Stones.Clone(); 
             PreviousStateHash = other.PreviousStateHash;
         }
 
+        // Hàm Clone gọi constructor copy
         public Board Clone() => new Board(this);
 
         /// <summary>

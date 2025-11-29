@@ -1,0 +1,56 @@
+.go-board {
+    display: grid;
+    grid-template-columns: repeat(19, 30px);
+    grid-template-rows: repeat(19, 30px);
+    background-color: #e3cf57; /* Màu gỗ */
+    padding: 15px;
+    border: 2px solid #5e401e;
+    width: fit-content;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    cursor: pointer;
+}
+
+/* Vẽ đường kẻ lưới */
+.cell::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #000;
+}
+
+.cell::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: #000;
+}
+
+/* Quân cờ */
+.stone {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    z-index: 10;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.stone.black { background-color: #000; }
+.stone.white { background-color: #fff; border: 1px solid #ccc; }
+
+.cell:hover .ghost-stone {
+    opacity: 0.5;
+}

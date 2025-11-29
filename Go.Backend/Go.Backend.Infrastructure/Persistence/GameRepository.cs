@@ -29,6 +29,7 @@ namespace Go.Backend.Infrastructure.Persistence
 
         public async Task SaveAsync(GameMatch game)
         {
+            game.Board = game.Board.Clone();
             _context.Games.Update(game);
             await _context.SaveChangesAsync();
         }
