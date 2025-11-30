@@ -19,3 +19,40 @@
 | Hồ Quang Chung    | 22001549        | @nekover2            | Backend + Hỗ trợ Model     |
 | Bùi Đức Hiếu      | 21002144        | @BuiDucHieuK66       | Frontend                   |
 | Nguyễn Khánh Toàn | 23001944        | @nguyentoan-git      | Model                      |
+
+# 🛠️ Hướng dẫn Khởi chạy
+
+Phần này hướng dẫn cách khởi chạy Backend Server và Frontend Web App trên môi trường cục bộ.
+
+## Yêu cầu hệ thống
+* **.NET 10 SDK** (Cho Backend)
+* **Node.js và npm** (Cho Frontend)
+* **Git**
+
+---
+
+## Bước 1: Khởi chạy Backend Server (API)
+Phần Backend xử lý logic MCTS và AI (ONNX Runtime).
+
+```bash
+# 1. Sao chép mã nguồn
+git clone https://github.com/Nekover2/Go-game.git
+
+# 2. Biên dịch (Build) và Khởi chạy Server
+cd Go-game/Go.Backend
+dotnet build
+cd Go.Backend.API 
+dotnet run
+```
+
+## Bước 2: Khởi chạy Frontend (Giao diện Web)
+Mở một terminal khác, độc lập với Backend đang chạy.
+
+```bash
+# 1. Di chuyển và cài đặt thư viện
+cd Go-game/go-frontend
+npm install
+
+# 2. Khởi chạy ứng dụng web
+npm run dev
+```
