@@ -9,7 +9,7 @@
 * **📝 Tiêu đề:** AI chơi cờ vây  
 * **📅 Ngày nộp:** 30/11/2025
 * **📄 Báo cáo PDF:** [Link PDF](https://drive.google.com/file/d/18OGs7V7qQuI2bk4jAeNbPURBDr_Q5VjR/view)
-* **🖥️ Slide thuyết trình:** [Link canva](https://www.canva.com/design/DAG5_ycHuXE/sirZc6MFDgbzsKvd60T_JA/view?utm_content=DAG5_ycHuXE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h92fd68517b)
+* **🖥️ Slide thuyết trình:** [Link canva](https://www.canva.com/design/DAG6fUeRp9E/RoUAFyNWyOj1W9Tkj7F4vA/view?utm_content=DAG6fUeRp9E&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hfdd95d980a)
 * **📂 Kho lưu trữ:** [Link drive](https://drive.google.com/drive/folders/1P2Y2IUGznp23DnE8sjbznupBD8w1j5AV?usp=sharing)
 
 **👥 Thành viên nhóm:**
